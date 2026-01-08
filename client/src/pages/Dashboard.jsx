@@ -42,13 +42,13 @@ const Dashboard = () => {
 
     try {
       const results = await Promise.allSettled([
-        // API 1: Lấy Dashboard (Truyền đúng tháng/năm đang chọn)
+      
         reportApi.getDashboard(user.id, selectedMonth, selectedYear),
         
-        // API 2: Lấy Giao dịch gần đây (Giữ nguyên)
+      
         transactionApi.getRecent(),
         
-        // API 3: Lấy Thống kê năm (Truyền đúng năm đang chọn)
+  
         reportApi.getYearlyStats(user.id, selectedYear),
       ]);
 
