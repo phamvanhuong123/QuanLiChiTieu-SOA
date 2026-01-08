@@ -70,8 +70,7 @@ export const budgetApi = {
 
 export const reportApi = {
   //  Dashboard tổng quan
-  getDashboard: (userId) => axiosClient.get(`/api/reports/dashboard/${userId}`),
-
+  getDashboard: (userId, month, year) => axiosClient.get(`/api/reports/dashboard/${userId}`,{params: { month, year }}),
  
 
   //  Dữ liệu biểu đồ năm

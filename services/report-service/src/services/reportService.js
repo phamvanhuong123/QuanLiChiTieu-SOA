@@ -6,7 +6,7 @@ import MonthlyReport from '../models/MonthlyReport.js';
 
 dotenv.config();
 
-export const syncData = async (userId, token) => {
+export const syncData = async (userId, token,month, year) => {
 
   if (!userId) {
     throw new ApiError(StatusCodes.BAD_REQUEST, "UserId là bắt buộc");
@@ -23,8 +23,8 @@ export const syncData = async (userId, token) => {
 
   
     const today = new Date();
-    const currentMonth = today.getMonth() + 1;
-    const currentYear = today.getFullYear();
+    const currentMonth = month ? Number(month) : (today.getMonth() + 1);
+    const currentYear = year ? Number(year) : today.getFullYear();
 
     let income = 0, expense = 0;
 
@@ -55,28 +55,30 @@ export const syncData = async (userId, token) => {
     // Xử lý lỗi khi gọi sang Core Service
     if (axios.isAxiosError(error)) {
         console.error("!!! [Sync Lỗi - Core Service]:", error.message);
-
+      return null
     }
-    
-
+    throw error
 
   }
 };
 
-export const getDashboard = async (userId, token) => {
+export const getDashboard = async (userId, token,month,year) => {
+  const today = new Date();
+  const targetMonth = month ? Number(month) : (today.getMonth() + 1);
+  const targetYear = year ? Number(year) : today.getFullYear();
   try {
      // Nếu Core Service chết,bắt lỗi để vẫn trả về data cũ 
-     await syncData(userId, token);
+     await syncData(userId, token,targetMonth,targetYear);
   } catch (error) {
      console.warn(" [Auto-Sync Warn]: Không thể đồng bộ dữ liệu mới, đang hiển thị dữ liệu cũ.");
     
   }
 
-  const today = new Date();
+ 
   const report = await MonthlyReport.findOne({
     userId,
-    month: today.getMonth() + 1,
-    year: today.getFullYear()
+    month: targetMonth,
+    year: targetYear
   });
 
   // Nếu chưa có report nào (user mới tinh), trả về default

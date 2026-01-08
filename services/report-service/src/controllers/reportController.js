@@ -27,14 +27,14 @@ export const getDashboard = async (req, res, next) => {
   try {
     const { userId } = req.params;
     const token = req.headers.authorization;
-
+    const {month,year} = req.query;
     if (!userId) {
       throw new ApiError(StatusCodes.BAD_REQUEST, 'userId không được để trống');
     }
 
     // await service.syncData(userId, token);
     console.log("Không thể chạy vào cái này")
-    const data = await service.getDashboard(userId,token);
+    const data = await service.getDashboard(userId,token,month,year);
     
     res.status(StatusCodes.OK).json(data || { 
       totalIncome: 0, 
