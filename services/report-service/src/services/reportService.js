@@ -1,72 +1,77 @@
 import axios from 'axios';
 import dotenv from 'dotenv';
-
+import { StatusCodes } from 'http-status-codes';
+import ApiError from '../utils/ApiError.js';
 import MonthlyReport from '../models/MonthlyReport.js';
 
 dotenv.config();
 
 export const syncData = async (userId, token) => {
+
   if (!userId) {
-    throw new Error("UserId là bắt buộc");
+    throw new ApiError(StatusCodes.BAD_REQUEST, "UserId là bắt buộc");
   }
 
   try {
     const coreUrl = `${process.env.CORE_SERVICE_URL}/transactions`;
 
+    
     const { data: transactions } = await axios.get(coreUrl, {
       params: { userId },
-      headers: {
-        Authorization: `Bearer ${token}`
-      },
-      timeout: 3000 
+      headers: { Authorization: token } // Chuyển tiếp token để Core xác thực
     });
 
+  
     const today = new Date();
     const currentMonth = today.getMonth() + 1;
     const currentYear = today.getFullYear();
 
     let income = 0, expense = 0;
 
-    for (const t of transactions) {
+    transactions.forEach(t => {
       const tDate = new Date(t.date);
       if (
         tDate.getMonth() + 1 === currentMonth &&
         tDate.getFullYear() === currentYear
       ) {
-        t.type === "INCOME"
-          ? (income += Number(t.amount))
-          : (expense += Number(t.amount));
+        if (t.type === 'INCOME') income += Number(t.amount);
+        else expense += Number(t.amount);
       }
-    }
+    });
 
-    return await MonthlyReport.findOneAndUpdate(
+    const result = await MonthlyReport.findOneAndUpdate(
       { userId, month: currentMonth, year: currentYear },
       {
         totalIncome: income,
         totalExpense: expense,
         balance: income - expense
       },
-      { upsert: true, new: true }
+      { upsert: true, new: true, setDefaultsOnInsert: true }
     );
 
+    return result;
+
   } catch (error) {
+    // Xử lý lỗi khi gọi sang Core Service
     if (axios.isAxiosError(error)) {
-      console.warn("Core Service unavailable, skip sync");
-      return null; 
+        console.error("!!! [Sync Lỗi - Core Service]:", error.message);
+
     }
-    throw error;
+    
+
+
   }
 };
 
-
 export const getDashboard = async (userId, token) => {
   try {
-     // Nếu Core Service chết,bắt lỗi để vẫn trả về data cũ (fallback)
+     // Nếu Core Service chết,bắt lỗi để vẫn trả về data cũ 
      await syncData(userId, token);
   } catch (error) {
-      console.error("Sync data failed:", error.message);
+     console.warn(" [Auto-Sync Warn]: Không thể đồng bộ dữ liệu mới, đang hiển thị dữ liệu cũ.");
     
   }
+
   const today = new Date();
   const report = await MonthlyReport.findOne({
     userId,

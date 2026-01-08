@@ -12,6 +12,6 @@ router.delete("/:id", controller.remove);   // Xóa giao dịch
 router.get("/search", controller.search);     
 router.get("/filter", controller.filter);     
 router.get("/recent", controller.getRecent);  
-router.get("/stats", controller.getStats);
+// router.get("/stats", controller.getStats);
 router.get("/:id", controller.getOne);
 export default router;
