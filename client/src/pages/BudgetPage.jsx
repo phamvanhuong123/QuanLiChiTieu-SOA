@@ -46,7 +46,7 @@ const BudgetPage = () => {
       const currentMonth = new Date().getMonth() + 1;
       const currentYear = new Date().getFullYear();
 
-      // Gọi 3 API cùng lúc: Hạn mức, Danh mục, Giao dịch tháng này
+
       const [budgetRes, catRes, transRes] = await Promise.all([
         budgetApi.getAll({ userId: user.id, month: currentMonth, year: currentYear }),
         categoryApi.getAll(),
@@ -54,7 +54,7 @@ const BudgetPage = () => {
         transactionApi.filter({ 
             userId: user.id, 
             startDate: `${currentYear}-${currentMonth}-01`, 
-            endDate: `${currentYear}-${currentMonth}-31`, // Lấy dư ngày cũng ko sao
+            endDate: `${currentYear}-${currentMonth}-31`, 
             type: 'EXPENSE' 
         })
       ]);

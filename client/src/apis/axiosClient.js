@@ -61,8 +61,8 @@ export const categoryApi = {
 };
 
 export const budgetApi = {
-  getAll: (params) => axiosClient.get('/api/core/budgets', { params }), // params: {month, year}
-  upsert: (data) => axiosClient.post('/core/budgets', data),
+  getAll: (params) => axiosClient.get('/api/core/budgets', { params }),
+  upsert: (data) => axiosClient.post('/api/core/budgets', data),
 
   remove: (id) => axiosClient.delete(`/api/core/budgets/${id}`),
 };

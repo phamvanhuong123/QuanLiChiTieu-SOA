@@ -4,7 +4,7 @@ import * as controller from "../controllers/budgetController.js";
 const router = Router();
 
 
-router.post("/", controller.upsertBudget); // Tạo/Sửa hạn mức
-router.get("/", controller.getBudgets);    // Xem danh sách hạn mức
+router.post("/", controller.upsertBudget); 
+router.get("/", controller.getBudgets);   
 router.delete("/:id", controller.removeBudget); 
 export default router;
